@@ -2,6 +2,9 @@ import tornado.websocket
 import json
 import collections.abc
 
+from .photos import PhotoHandler
+from .settings import SettingsHandler
+
 class MainSocketHandler(tornado.websocket.WebSocketHandler):
     def __init__(self, *args, app_handlers=None, **kwargs):
         self.state = {}

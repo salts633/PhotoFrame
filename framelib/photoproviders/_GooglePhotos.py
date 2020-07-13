@@ -38,7 +38,7 @@ class Manager():
                 self.CREDS.refresh(Request())
             else:
                 print('flow from secrets file')
-                flow = InstalledAppFlow.from_client_secrets_file('../client_secret.json', SCOPES)
+                flow = InstalledAppFlow.from_client_secrets_file('../../client_secret.json', SCOPES)
                 self.CREDS = flow.run_local_server(port = 0)
             with open("token.pickle", "wb") as tokenFile:
                 pickle.dump(self.CREDS, tokenFile)

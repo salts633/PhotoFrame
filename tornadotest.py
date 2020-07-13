@@ -4,13 +4,9 @@ import tornado.locks
 import tornado.web
 import tornado.websocket
 import os.path
-import datetime
-import json
 
-from photoproviders import GooglePhotos
-from framesockets import MainSocketHandler
-from framesockets.photos import PhotoHandler
-from framesockets.settings import SettingsHandler
+from framelib.photoproviders import GooglePhotos
+from framelib.sockets import MainSocketHandler, PhotoHandler, SettingsHandler
 
 from tornado.options import define, options, parse_command_line
 
