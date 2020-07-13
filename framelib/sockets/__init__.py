@@ -5,17 +5,25 @@ import collections.abc
 from .photos import PhotoHandler
 from .settings import SettingsHandler
 
+
 class MainSocketHandler(tornado.websocket.WebSocketHandler):
     def __init__(self, *args, app_handlers=None, **kwargs):
+        # call __init__ at start as some handlers (may) expect
+        # a socket to be available when they are initialised
+        super().__init__(*args, **kwargs)
         self.state = {}
         self.app_handlers = []
         if app_handlers is not None:
             for handler, handlerkwargs in app_handlers:
                 self.register_handler(handler(socket=self, **handlerkwargs))
-        super().__init__(*args, **kwargs)
 
     def register_handler(self, handler):
         self.app_handlers.append(handler)
+
+    def open(self, *args, **kwargs):
+        super().open(*args, **kwargs)
+        for handler in self.app_handlers:
+            handler.open()
 
     def on_message(self, json_message):
         newstate = json.loads(json_message)

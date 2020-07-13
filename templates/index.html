@@ -10,10 +10,11 @@
      <script>
        SERVER_ADDRESS="{{SERVER_ADDRESS}}";
        PHOTOS_PATH="{{PHOTOS_PATH}}";
+       WS = new WebSocket("ws://"+SERVER_ADDRESS+"/socket");
      </script>
      <script src="{{ static_url('photoframe.js') }}" type="text/javascript"></script>
      <script src="{{ static_url('settings.js') }}" type="text/javascript"></script>
-    <div id='photodiv'>
+    <div id='photodiv' onclick="ToggleSettingsVisibility();">
       <img id='photo' src="#" alt="The current main image">
     </div>
     <div id='settingscontain'>
@@ -22,10 +23,7 @@
         </div>
         <div id='centrecol'>
             <div class='buttonbox'>
-                play
-            </div>
-            <div class='buttonbox'>
-                pause
+                <input type="checkbox" id="playPause" onclick="PlayPause(this)">
             </div>
             <div class='buttonbox'>
                 TODO refresh rate
