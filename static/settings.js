@@ -29,11 +29,13 @@ function PlayPause (checkbox) {
     new Promise (
         function () {
             if (checkbox.checked == true) {
+                document.getElementById("playpauseicon").src = STATICPATH + 'icons/2000px-Breathe-media-playback-pause.svg.png';
                 WS.send(JSON.stringify(
                     {'settings': {'playPause': 'play'}}
                 ))
             }
             else {
+                document.getElementById("playpauseicon").src = STATICPATH + 'icons/2000px-Breathe-media-playback-start.svg.png';
                 WS.send(JSON.stringify(
                     {'settings': {'playPause': 'pause'}}
                 ))

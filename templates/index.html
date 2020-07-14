@@ -10,6 +10,7 @@
      <script>
        SERVER_ADDRESS="{{SERVER_ADDRESS}}";
        PHOTOS_PATH="{{PHOTOS_PATH}}";
+       STATICPATH="{{static_url('')}}";
        WS = new WebSocket("ws://"+SERVER_ADDRESS+"/socket");
      </script>
      <script src="{{ static_url('photoframe.js') }}" type="text/javascript"></script>
@@ -19,18 +20,34 @@
     </div>
     <div id='settingscontain'>
         <div id='leftcol'>
-        last image
+            <div class='buttonbox'></div>
+            <div class='buttonbox'>
+                <label>
+                    <img id="backicon" src="{{static_url("icons/2000px-Breathe-media-seek-backward.svg.png")}}" alt="image placeholder">
+                </label>
+            </div>
+            <div class='buttonbox'></div>
         </div>
         <div id='centrecol'>
+            <div class='buttonbox'></div>
             <div class='buttonbox'>
-                <input type="checkbox" id="playPause" onclick="PlayPause(this)">
+                <label>
+                    <input class="hidden" type="checkbox" id="playPause" onclick="PlayPause(this)">
+                    <img id="playpauseicon" src="{{static_url("icons/2000px-Breathe-media-playback-pause.svg.png")}}" alt="image placeholder">
+                </label>
             </div>
             <div class='buttonbox'>
                 TODO refresh rate
             </div>
         </div>
         <div id='rightcol'>
-        next image
+            <div class='buttonbox'></div>
+            <div class='buttonbox'>
+                <label>
+                    <img id="forwardicon" src="{{static_url("icons/2000px-Breathe-media-seek-forward.svg.png")}}" alt="image placeholder">
+                </label>
+            </div>
+            <div class='buttonbox'></div>
         </div>
     </div>
   </body>

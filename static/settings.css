@@ -1,9 +1,9 @@
 
 #settingscontain {
     visibility: hidden;
-    background-color: white;
     display: flex;
     flex-direction: row;
+    flex-wrap: nowrap;
     position: relative;
     top: 10%;
     left: 10%;
@@ -12,16 +12,42 @@
     z-index: 10;
 }
 
-#leftcol, #rightcol, #centrecol {
-    z-index:11;
-    flex-grow: 1;
+.hidden {
+    display: none;
 }
 
-#centrecol {
+#leftcol, #rightcol, #centrecol {
     display: flex;
     flex-direction: column;
+    z-index:11;
+    flex-grow: 1;
+     -- flex-shrink: 1;
+    flex-basis: 0;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    min-width: 0;
+    min-height: 0;
+}
+
+.buttonbox:not(:empty){
+    background-color: white;
 }
 
 .buttonbox {
     flex-grow: 1;
+    flex-basis: 0;
+    opacity: 80%;
+    margin: 5px;
+    width: 95%;
+}
+
+.buttonbox > label {
+    height: 100%;
+    width: 100%;
+}
+
+#playpauseicon, #forwardicon, #backicon {
+    max-height: 100%;
+    max-width: 100%;
 }
