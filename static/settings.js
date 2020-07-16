@@ -25,6 +25,16 @@ function ToggleSettingsVisibility() {
     )
 }
 
+function skip(direction) {
+    new Promise(
+        function () {
+                WS.send(JSON.stringify(
+                    {'settings': {'skip': direction}}
+                ))
+        }
+    )
+}
+
 function PlayPause (checkbox) {
     new Promise (
         function () {

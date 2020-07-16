@@ -39,6 +39,7 @@ class Manager():
         self.socket = None
         self.album_id = None
         self.photos = None
+        self.last_photo = ''
         self.photos_last_updated = None
         self.photo_cache = {}
 
@@ -149,6 +150,11 @@ class Manager():
                 raise PhotoListException("No photos in album")
 
         fetch_id = random.choice(self.photos)['id']
+        if len(self.photos) > 1:
+            while fetch_id == self.last_photo:
+                # ensure we don't return the same photo twice in a row
+                fetch_id = random.choice(self.photos)['id']
+        self.last_photo = fetch_id
 
         if fetch_id in self.photo_cache:
             photo = self.photo_cache[fetch_id]

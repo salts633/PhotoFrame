@@ -43,7 +43,7 @@
     <div id='settingscontain'>
         <div id='leftcol'>
             <div class='buttonbox'></div>
-            <div class='buttonbox'>
+            <div class='buttonbox' onclick="skip('backward')">
                 <label>
                     <img id="backicon" src="{{static_url("icons/2000px-Breathe-media-seek-backward.svg.png")}}" alt="image placeholder">
                 </label>
@@ -64,7 +64,7 @@
         </div>
         <div id='rightcol'>
             <div class='buttonbox'></div>
-            <div class='buttonbox'>
+            <div class='buttonbox' onclick="skip('forward')">
                 <label>
                     <img id="forwardicon" src="{{static_url("icons/2000px-Breathe-media-seek-forward.svg.png")}}" alt="image placeholder">
                 </label>

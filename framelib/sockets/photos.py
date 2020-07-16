@@ -15,6 +15,9 @@ class PhotoHandler():
         self.socket = kwargs.get('socket')
         self.photo_manager = kwargs.pop('photo_manager')
         self.photo_manager.socket = self.socket
+        self.photo_history = []
+        self.max_history = 10
+        self.sendindex = -1  # first retrieval will += 1 this
         self.photo_last_update = None
         # super().__init__(*args, **kwargs)
         self.photo_timer = tornado.ioloop.PeriodicCallback(
@@ -33,9 +36,17 @@ class PhotoHandler():
             print('updating photo')
             if self.photo_manager.auth():
                 photoname = self.photo_manager.get_photo()
-                print('photoname to send', photoname)
-                self.write_message(photoname)
-                self.photo_last_update = datetime.datetime.utcnow()
+                self.photo_history.append(photoname)
+                if len(self.photo_history) > self.max_history:
+                    self.photo_history = self.photo_history[1:]
+                else:
+                    self.sendindex += 1
+                self.send_photo()
+
+    def send_photo(self):
+        print('photoname to send', self.photo_history[self.sendindex])
+        self.write_message(self.photo_history[self.sendindex])
+        self.photo_last_update = datetime.datetime.utcnow()
 
     def write_message(self, message):
         self.socket.write_message('photo', message)
@@ -53,9 +64,10 @@ class PhotoHandler():
             else:
                 self.socket.write_message('auth', 'authorised')
 
-        playpause = newstate.get(
+        settings = newstate.get(
             'settings', {}
-        ).get('playPause', '')
+        )
+        playpause = settings.get('playPause', '')
         if playpause == 'play':
             print('callback starting timer')
             self.photo_timer.start()
@@ -65,6 +77,16 @@ class PhotoHandler():
         else:
             pass
             #TODO log unexpected input
+        skip = settings.get('skip', '')
+        if self.photo_history:
+            if skip == 'forward' and self.sendindex < len(self.photo_history) - 1:
+                self.sendindex += 1
+                print('skip forward')
+                self.send_photo()
+            elif skip == 'backward' and self.sendindex > 0:
+                print('skip backward')
+                self.sendindex -=1
+                self.send_photo()
 
     def close(self):
         self.photo_timer.stop()
