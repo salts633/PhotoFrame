@@ -29,6 +29,7 @@ def main():
     app = tornado.web.Application(
         [
             (r"/", MainHandler),
+            (r"/auth/.*", MainHandler),
             (r"/socket", MainSocketHandler,
              {'app_handlers': [
                     (PhotoHandler, {'photo_manager': GooglePhotos()}),

@@ -10,6 +10,7 @@ import shutil
 import random
 import datetime
 from pathlib import Path
+import urllib.parse as urlparse
 
 SCOPES = ['https://www.googleapis.com/auth/photoslibrary.readonly']
 
@@ -24,13 +25,58 @@ class PhotoListException(GooglePhotosException):
 
 class Manager():
     CREDS = None
-    
+
     def __init__(self, photos_path='photos', album_name='Frame',
                  photo_update_interval=datetime.timedelta(hours=6)):
         self.photos_path = photos_path
         self.album_name = album_name
         self.photo_update_interval = photo_update_interval
-        if(os.path.exists("token.pickle")):
+
+        self.flow = None
+        self.CREDS = None
+        self.service = None
+
+        self.socket = None
+        self.album_id = None
+        self.photos = None
+        self.photos_last_updated = None
+        self.photo_cache = {}
+
+    def auth(self, **kwargs):
+        if self.service:
+            return True
+        if not self.flow:
+            self.flow = InstalledAppFlow.from_client_secrets_file(
+                'client_secret.json',
+                SCOPES,
+                #redirect_uri= 'http://' + self.socket.request.host + '/auth/google'
+                #redirect_uri="urn:ietf:wg:oauth:2.0:oob:auto"
+                redirect_uri="http://localhost:8888/auth/"
+            )
+        PICKLE_PATH = "token.pickle"
+        token = kwargs.get('token', None)
+        if token:
+            print('auth2 query token', token)
+            query = urlparse.parse_qs(urlparse.urlparse(token).query)
+            if 'error' in query or 'code' not in query:
+                print('auth step 2 failed')
+                return False
+            # part 2 of authorisation step
+            print('auth2 token code', query['code'])
+            self.flow.fetch_token(code=query['code'][0])
+            self.CREDS = self.flow.credentials
+            if not self.CREDS.valid:
+                return False
+            with open(PICKLE_PATH, "wb") as tokenFile:
+                pickle.dump(self.CREDS, tokenFile)
+            self.socket.update_state(
+                {'settings':{'playPause': 'play'},
+                 'auth': None
+                 }
+            )
+            return True
+        # part 1 of authorisation process
+        if os.path.exists(PICKLE_PATH):
             with open("token.pickle", "rb") as tokenFile:
                 self.CREDS = pickle.load(tokenFile)
         if not self.CREDS or not self.CREDS.valid:
@@ -38,16 +84,15 @@ class Manager():
                 self.CREDS.refresh(Request())
             else:
                 print('flow from secrets file')
-                flow = InstalledAppFlow.from_client_secrets_file('../../client_secret.json', SCOPES)
-                self.CREDS = flow.run_local_server(port = 0)
-            with open("token.pickle", "wb") as tokenFile:
-                pickle.dump(self.CREDS, tokenFile)
-        print('building service')
-        self.service = build('photoslibrary', 'v1', credentials = self.CREDS, cache_discovery=False)
-        self.album_id = None
-        self.photos = None
-        self.photos_last_updated = None
-        self.photo_cache = {}
+                auth_url = self.flow.authorization_url()[0]
+                self.socket.write_message(
+                    "auth_redirect", auth_url
+                )
+                return False
+        if not self.service:
+            print('building service')
+            self.service = build('photoslibrary', 'v1', credentials=self.CREDS, cache_discovery=False)
+        return True
 
     def get_album(self, album_name):
         page_token = True
@@ -69,9 +114,7 @@ class Manager():
                 break
             page_token = results.get('nextPageToken', None)
         else:
-            raise GooglePhotosException(
-                f"Unable to find requested album"
-            )
+            raise GooglePhotosException(f"Unable to find requested album")
 
     def get_photo(self):
         if not self.album_id:

@@ -1,5 +1,6 @@
 import datetime
 import tornado.ioloop
+import json
 
 PHOTO_DEFAULT_UPDATE_INTERVAL = 5 # in integer seconds
 
@@ -13,6 +14,7 @@ class PhotoHandler():
         )
         self.socket = kwargs.get('socket')
         self.photo_manager = kwargs.pop('photo_manager')
+        self.photo_manager.socket = self.socket
         self.photo_last_update = None
         # super().__init__(*args, **kwargs)
         self.photo_timer = tornado.ioloop.PeriodicCallback(
@@ -21,7 +23,7 @@ class PhotoHandler():
         )
 
     def open(self):
-        self.photo_timer.start()
+        pass
 
     def _update_photo(self):
         if (self.photo_last_update is None
@@ -29,15 +31,28 @@ class PhotoHandler():
             (datetime.datetime.utcnow() - self.photo_last_update > self.photo_update_interval)
         ):
             print('updating photo')
-            photoname = self.photo_manager.get_photo()
-            print('photoname to send', photoname)
-            self.write_message(photoname)
-            self.photo_last_update = datetime.datetime.utcnow()
+            if self.photo_manager.auth():
+                photoname = self.photo_manager.get_photo()
+                print('photoname to send', photoname)
+                self.write_message(photoname)
+                self.photo_last_update = datetime.datetime.utcnow()
 
     def write_message(self, message):
         self.socket.write_message('photo', message)
 
     def callback(self, newstate):
+        auth = newstate.get(
+            'auth', None
+        )
+        if auth:
+            print('callback auth 2', str(auth))
+            if not self.photo_manager.auth(**auth):
+                # restart auth process
+                print('restarting auth')
+                self.photo_manager.auth()
+            else:
+                self.socket.write_message('auth', 'authorised')
+
         playpause = newstate.get(
             'settings', {}
         ).get('playPause', '')

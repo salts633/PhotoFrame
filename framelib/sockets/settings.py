@@ -5,7 +5,7 @@ from .photos import PHOTO_DEFAULT_UPDATE_INTERVAL
 class SettingsHandler():
     def __init__(self, *args, **kwargs):
         self.appsettings = {
-            'playPause': 'play',
+            'playPause': 'pause',
             'photoUpdateInterval': PHOTO_DEFAULT_UPDATE_INTERVAL
         }
         self.socket = kwargs.get('socket')
