@@ -1,0 +1,32 @@
+<div class='flexcol'>
+    <div class='buttonbox'></div>
+    <div class='buttonbox' id="backbox" onclick="skip(event, 'backward')">
+        <label>
+            <img id="backicon" src="{{static_url("icons/2000px-Breathe-media-seek-backward.svg.png")}}" alt="image placeholder">
+        </label>
+    </div>
+    <div class='buttonbox'></div>
+</div>
+<div class='flexcol'>
+    <div class='buttonbox'></div>
+    <div class='buttonbox' onclick="event.stopPropagation();">
+        <span></span>
+        <input class="nodisplay" type="checkbox" id="playPause" name="playPause" onclick="PlayPause(this)">
+        <label for="playPause">
+            <img id="playpauseicon" src="{{static_url("icons/2000px-Breathe-media-playback-pause.svg.png")}}" alt="image placeholder"/>
+        </label>
+    </div>
+
+    <div class='buttonbox' onclick="event.stopPropagation(); openMenu(document.getElementById('moresettings'));">
+        TODO refresh rate
+    </div>
+</div>
+<div class='flexcol'>
+    <div class='buttonbox'></div>
+    <div class='buttonbox' id="forwardbox" onclick="skip(event, 'forward')">
+        <label>
+            <img id="forwardicon" src="{{static_url("icons/2000px-Breathe-media-seek-forward.svg.png")}}" alt="image placeholder">
+        </label>
+    </div>
+    <div class='buttonbox'></div>
+</div>

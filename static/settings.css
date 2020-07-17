@@ -1,6 +1,5 @@
 
-#settingscontain {
-    visibility: hidden;
+.settingscontain {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -16,16 +15,29 @@
     visibility: hidden;
 }
 
-.hidden {
+.nodisplay {
     display: none;
 }
 
-#leftcol, #rightcol, #centrecol {
+.flexcol {
     display: flex;
     flex-direction: column;
     z-index:11;
     flex-grow: 1;
      -- flex-shrink: 1;
+    flex-basis: 0;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    min-width: 0;
+    min-height: 0;
+}
+
+.flexrow {
+    display: flex;
+    flex-direction: row;
+    z-index:11;
+    flex-grow: 1;
     flex-basis: 0;
     justify-content: center;
     align-items: center;
@@ -44,14 +56,32 @@
     opacity: 80%;
     margin: 5px;
     width: 95%;
+    display: flex;
+    flex-align: center;
+}
+.buttonbox:active {
+    opacity: 100%;
 }
 
-.buttonbox > label {
-    height: 100%;
-    width: 100%;
+/*
+input:checked + label {
+    background-color: blue;
 }
+*/
 
 #playpauseicon, #forwardicon, #backicon {
     max-height: 100%;
     max-width: 100%;
+    display: inherit;
+}
+
+#albumselector {
+    flex-grow: 2;
+}
+
+label {
+height: 100%;
+width: 100%;
+display: inherit;
+flex-align: center;
 }

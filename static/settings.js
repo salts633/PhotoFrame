@@ -10,39 +10,62 @@ WS.addEventListener("message", function (evt) {
 
         if ('canForward' in newsettings) {
             if (newsettings.canForward === false) {
-                document.getElementById('forwardbox').classList.add('invisible')
+                document.getElementById('forwardbox').style.display = 'none'
             }
             if (newsettings.canForward === true) {
-                document.getElementById('forwardbox').classList.remove('invisible')
+                document.getElementById('forwardbox').style.display = 'flex'
             }
         }
         if ('canBackward' in newsettings) {
             if (newsettings.canBackward === false) {
-                document.getElementById('backbox').classList.add('invisible')
+                document.getElementById('backbox').style.display = 'none'
             }
             if (newsettings.canBackward === true) {
-                document.getElementById('backbox').classList.remove('invisible')
+                document.getElementById('backbox').style.display = 'flex'
             }
         }
     }
 });
 
-
-function ToggleSettingsVisibility() {
-    new Promise(
+function openMenu(menudiv) {
+    new Promise (
         function () {
-            var setingstyle = document.getElementById('settingscontain').style;
-            if (setingstyle.visibility == "hidden") {
-                setingstyle.visibility = "visible"
-            }
-            else {
-                setingstyle.visibility = "hidden"
+            var settingsboxes = document.getElementsByClassName('settingscontain')
+            for (var i =0; i< settingsboxes.length; i++){
+                if (menudiv === settingsboxes[i]) {
+                    settingsboxes[i].classList.remove('nodisplay')
+                }
+                else {
+                    settingsboxes[i].classList.add('nodisplay')
+                }
             }
         }
     )
 }
 
-function skip(direction) {
+function ToggleSettingsVisibility() {
+    new Promise(
+        function () {
+            var settingsboxes = document.getElementsByClassName('settingscontain')
+            let hidden = true;
+            for (var i =0; i< settingsboxes.length; i++){
+                hidden = settingsboxes[i].classList.contains('nodisplay') ? true : false;
+                if (hidden === false) break;
+            }
+            if (hidden === false) {
+                for (var i =0; i< settingsboxes.length; i++){
+                    settingsboxes[i].classList.add('nodisplay');
+                }
+            }
+            else{
+                document.getElementById("topsettings").classList.remove('nodisplay');
+            }
+        }
+    )
+}
+
+function skip(event, direction) {
+    event.stopPropagation()
     new Promise(
         function () {
                 WS.send(JSON.stringify(
@@ -53,6 +76,7 @@ function skip(direction) {
 }
 
 function PlayPause (checkbox) {
+    event.stopPropagation()
     new Promise (
         function () {
             if (checkbox.checked == true) {
