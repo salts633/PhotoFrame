@@ -17,13 +17,34 @@ class PhotoHandler():
         self.photo_manager.socket = self.socket
         self.photo_history = []
         self.max_history = 10
-        self.sendindex = -1  # first retrieval will += 1 this
+        self._sendindex = -1  # first retrieval will += 1 this
+        self.canforward = None
+        self.canbackward = None
         self.photo_last_update = None
         # super().__init__(*args, **kwargs)
         self.photo_timer = tornado.ioloop.PeriodicCallback(
             self._update_photo,
             callback_time=500
         )
+
+    @property
+    def sendindex(self):
+        return self._sendindex
+
+    @sendindex.setter
+    def sendindex(self, newindex):
+        self._sendindex = newindex
+        self.canforward = self.photo_history and self.sendindex < len(self.photo_history) - 1
+        self.canbackward = self.photo_history and self.sendindex > 0
+        self.socket.update_state(
+            {
+                'settings': {
+                    'canForward': self.canforward,
+                    'canBackward': self.canbackward
+                }
+            }
+        )
+
 
     def open(self):
         pass
@@ -78,15 +99,14 @@ class PhotoHandler():
             pass
             #TODO log unexpected input
         skip = settings.get('skip', '')
-        if self.photo_history:
-            if skip == 'forward' and self.sendindex < len(self.photo_history) - 1:
-                self.sendindex += 1
-                print('skip forward')
-                self.send_photo()
-            elif skip == 'backward' and self.sendindex > 0:
-                print('skip backward')
-                self.sendindex -=1
-                self.send_photo()
+        if skip == 'forward' and self.canforward:
+            self.sendindex += 1
+            print('skip forward')
+            self.send_photo()
+        elif skip == 'backward' and self.canbackward:
+            print('skip backward')
+            self.sendindex -=1
+            self.send_photo()
 
     def close(self):
         self.photo_timer.stop()

@@ -12,6 +12,10 @@
     z-index: 10;
 }
 
+.invisible {
+    visibility: hidden;
+}
+
 .hidden {
     display: none;
 }

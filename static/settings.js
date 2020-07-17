@@ -7,6 +7,23 @@ WS.addEventListener("message", function (evt) {
         var ppbutton = document.getElementById('playPause');
         if (pp == 'play'){ ppbutton.checked = true;}
         if (pp == 'pause'){ ppbutton.checked = false;}
+
+        if ('canForward' in newsettings) {
+            if (newsettings.canForward === false) {
+                document.getElementById('forwardbox').classList.add('invisible')
+            }
+            if (newsettings.canForward === true) {
+                document.getElementById('forwardbox').classList.remove('invisible')
+            }
+        }
+        if ('canBackward' in newsettings) {
+            if (newsettings.canBackward === false) {
+                document.getElementById('backbox').classList.add('invisible')
+            }
+            if (newsettings.canBackward === true) {
+                document.getElementById('backbox').classList.remove('invisible')
+            }
+        }
     }
 });
 
