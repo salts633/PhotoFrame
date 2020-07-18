@@ -1,3 +1,9 @@
+:root{
+    --menu-background-color: white;
+    --button-background-color: Gray;
+    --button-active-color: DarkGray;
+}
+
 
 .settingscontain {
     display: flex;
@@ -24,7 +30,7 @@
     flex-direction: column;
     z-index:11;
     flex-grow: 1;
-     -- flex-shrink: 1;
+    /* flex-shrink: 1; */
     flex-basis: 0;
     justify-content: center;
     align-items: center;
@@ -47,7 +53,7 @@
 }
 
 .buttonbox:not(:empty){
-    background-color: white;
+    background-color: var(--menu-background-color);
 }
 
 .buttonbox {
@@ -62,12 +68,6 @@
 .buttonbox:active {
     opacity: 100%;
 }
-
-/*
-input:checked + label {
-    background-color: blue;
-}
-*/
 
 #playpauseicon, #forwardicon, #backicon {
     max-height: 100%;
@@ -88,7 +88,6 @@ flex-align: center;
 
 .hmsrefreshcontainer{
     display: inherit;
-    background-color: grey;
     margin: 10px;
     flex-basis: 0;
     flex-grow: 2;
@@ -98,11 +97,30 @@ flex-align: center;
     align-items: center;
 }
 
+.hmsrefreshbutton{
+    background-color: var(--button-background--color);
+    height: 100%;
+    align-items: center;
+    display: inherit;
+    justify-content: center;
+}
+
 .hmsrefreshcontainer label {
 align-items: center;
 }
 .hmsrefreshcontainer span {
 width: 100%;
+}
+
+.hmsrefreshradio{
+    display: none
+}
+
+.hmsrefreshcontainer>label input:checked ~ .hmsrefreshbutton {
+    background-color: var(--button-background-color);
+}
+.hmsrefreshbutton:active{
+    background-color: var(--button-active-color);
 }
 
 /* allow inputs to shrink in flex boxex */
