@@ -85,3 +85,46 @@ width: 100%;
 display: inherit;
 flex-align: center;
 }
+
+.hmsrefreshcontainer{
+    display: inherit;
+    background-color: grey;
+    margin: 10px;
+    flex-basis: 0;
+    flex-grow: 2;
+    height: 90%;
+    text-align: center;
+    vertical-align: middle;
+    align-items: center;
+}
+
+.hmsrefreshcontainer label {
+align-items: center;
+}
+.hmsrefreshcontainer span {
+width: 100%;
+}
+
+/* allow inputs to shrink in flex boxex */
+input {
+    min-width: 0;
+    min-height: 0;
+}
+/* sometimes inputs need a width set explicitly
+   to respect the size of their parent, we can safely
+   do this for the refresh number */
+#hmsrefreshnumber{
+    width: 100%;
+}
+
+/* hide spin buttons on input boxes */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

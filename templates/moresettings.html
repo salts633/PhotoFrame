@@ -1,8 +1,36 @@
 <div class="flexcol">
-    <div id="albumselector" class="buttonbox">
+    <div id="albumselector" class="buttonbox" onclick="event.stopPropagation()">
         TODO work with multiple albums
     </div>
-    <div id="refreshcontain" class="buttonbox flexcol">
-abc
+    <div id="refreshcontain" class="buttonbox flexrow" onclick="event.stopPropagation()">
+        <div class="hmsrefreshcontainer">
+            <span>-</span>
+        </div>
+        <div class="hmsrefreshcontainer">
+            <label>
+                <input id="hmsrefreshnumber" type="number"/>
+            </label>
+        </div>
+        <div class="hmsrefreshcontainer">
+            <span>+</span>
+        </div>
+        <div class="hmsrefreshcontainer">
+            <label >
+                <input class="hmsrefresh" type="radio" name="hms"/>
+                <span class="hmsrefreshbutton">Seconds</span>
+            </label>
+        </div>
+        <div class="hmsrefreshcontainer">
+            <label>
+                <input class="hmsrefresh" type="radio" name="hms"/>
+                <span class="hmsrefreshbutton">Minutes</span>
+            </label>
+        </div>
+        <div class="hmsrefreshcontainer">
+            <label>
+                <input class="hmsrefresh" type="radio" name="hms"/>
+                <span class="hmsrefreshbutton">Hours</span>
+            </label>
+        </div>
     </div>
 </div>
