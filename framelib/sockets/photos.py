@@ -83,6 +83,11 @@ class PhotoHandler():
                 print('restarting auth')
                 self.photo_manager.auth()
             else:
+                self.socket.update_state(
+                    {'settings': {'playPause': 'play'},
+                     'auth': None
+                     }
+                )
                 self.socket.write_message('auth', 'authorised')
 
         settings = newstate.get(

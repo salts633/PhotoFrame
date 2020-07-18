@@ -70,11 +70,6 @@ class Manager():
                 return False
             with open(PICKLE_PATH, "wb") as tokenFile:
                 pickle.dump(self.CREDS, tokenFile)
-            self.socket.update_state(
-                {'settings':{'playPause': 'play'},
-                 'auth': None
-                 }
-            )
             return True
         # part 1 of authorisation process
         if os.path.exists(PICKLE_PATH):
