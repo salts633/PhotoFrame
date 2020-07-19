@@ -3,6 +3,8 @@ client_secret.json
 token.pickle
 # photo cache directory
 photos/
+# settings backup pickle
+settings.pickle
 #  emacs backup files
 *~
 # pycharm
