@@ -24,6 +24,13 @@ WS.addEventListener("message", function (evt) {
                 document.getElementById('backbox').style.display = 'flex'
             }
         }
+        if ('photoUpdateInterval' in newsettings){
+            let mode = newsettings['photoIntervalMode'];
+            // socket always gives value in seconds so set update_interval directly
+            REFRESH.update_interval = newsettings['photoUpdateInterval']
+            document.getElementById('hms'+mode).checked = true
+            REFRESH.setMode(mode, 'hmsrefreshnumber');
+        }
     }
 });
 
@@ -94,3 +101,95 @@ function PlayPause (checkbox) {
         }
     )
 }
+
+class RefreshManager{
+    constructor(){
+        this.update_interval = 5
+        this.mode = 'seconds'
+    }
+    send_update(){
+        try {
+             console.log('sending photo update', this.update_interval)
+             WS.send(
+                JSON.stringify(
+                    {'settings': {
+                        'photoUpdateInterval': this.update_interval,
+                        'photoIntervalMode': this.mode
+                     }
+                    }
+                )
+             )
+        }
+        catch(err){
+            console.log('error sending update for photoUpdateInterval:', err)
+        }
+    }
+    setVal(val) {
+        if (this.mode == 'seconds'){
+            var newval = val
+        }
+        else if (this.mode == 'minutes'){
+            var newval = val * 60
+        }
+        else if (this.mode == 'hours'){
+            var newval = val * 3600
+        }
+        if (newval != this.update_interval){
+            this.update_interval = newval
+            this.checkLims()
+            this.send_update()
+        }
+    }
+
+    checkLims(){
+        if (this.mode == 'seconds'){
+            var max = 120;
+            var min = 5;
+        }
+        else if (this.mode == 'minutes'){
+            var max = 90 * 60;
+            var min = 60;
+        }
+        else if (this.mode == 'hours'){
+            var max = 12 * 3600;
+            var min = 3600;
+        }
+        if (this.update_interval < min){
+            this.update_interval = min
+        }
+        if (this.update_interval > max){
+            this.update_interval = max
+        }
+    }
+
+    setMode(mode, number_input_name){
+        var number_input = document.getElementById(number_input_name)
+        this.mode = mode
+        console.log('refresh setting mode', mode)
+        if (this.mode == 'seconds'){
+            number_input.step = 5
+            number_input.min = 5
+            number_input.max = 120
+            this.checkLims()
+            number_input.value = this.update_interval
+        }
+        else if (this.mode == 'minutes'){
+            number_input.step = 1
+            number_input.min = 1
+            number_input.max = 90
+            this.checkLims()
+            number_input.value = this.update_interval/60.0
+        }
+        else if (this.mode == 'hours'){
+            number_input.step = 0.5
+            number_input.min = 1
+            number_input.max = 12
+            this.checkLims()
+            number_input.value = this.update_interval/3600.0
+        }
+        this.send_update()
+    }
+
+}
+
+REFRESH = new RefreshManager()

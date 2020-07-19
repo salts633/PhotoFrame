@@ -12,23 +12,45 @@ class SettingsHandler():
                 self._persistent_settings = pickle.load(f)
         else:
             self._persistent_settings = {
-                'photoUpdateInterval': PHOTO_DEFAULT_UPDATE_INTERVAL
+                'photoUpdateInterval': PHOTO_DEFAULT_UPDATE_INTERVAL,
+                'photoIntervalMode': 'seconds'
+
             }
         self._persistent_keys = self._persistent_settings.keys()
-        self.appsettings = self._persistent_settings.copy()
+        self._appsettings = self._persistent_settings.copy()
         # always start paused to avoid auth issues
-        self.appsettings['playPause'] = 'pause'
+        self._appsettings['playPause'] = 'pause'
         self._transient_settings = ['skip']
         self.socket = kwargs.get('socket')
+
+    def _recursive_dict_update(self, d, u):
+        for k, v in u.items():
+            if isinstance(v, collections.abc.Mapping):
+                d[k] = self._recursive_dict_update(d.get(k, {}), v)
+            else:
+                d[k] = v
+        return d
+
+    @property
+    def appsettings(self):
+        return self._appsettings
 
     @property
     def persistent_settings(self):
         return self._persistent_settings
 
-    @persistent_settings.setter
-    def persistent_settings(self, newsettings):
+    # no setter for persitent_settings as it should always
+    # be set automatically when appsettings is
+    @appsettings.setter
+    def appsettings(self, newsettings):
+        if newsettings != self._appsettings:
+            print('new settings found', newsettings)
+            self.write_message(newsettings)
+            self._appsettings = newsettings
+
         persist = self._persistent_settings.copy()
-        persist.update(
+        self._recursive_dict_update(
+            persist,
             {
                 k: v for k, v in newsettings.items()
                 if k in self._persistent_keys
@@ -46,21 +68,10 @@ class SettingsHandler():
         self.socket.write_message('settings', message)
 
     def callback(self, newstate):
-        def update(d, u):
-            for k, v in u.items():
-                if isinstance(v, collections.abc.Mapping):
-                    d[k] = update(d.get(k, {}), v)
-                else:
-                    d[k] = v
-            return d
         settings = newstate.get('settings', {})
         newsettings = self.appsettings.copy()
-        update(newsettings, settings)
-        newsettings = self._remove_transient(newsettings)
-        if newsettings != self.appsettings:
-            print('new settings found', newsettings)
-            self.write_message(newsettings)
-            self.appsettings = newsettings
+        self._recursive_dict_update(newsettings, settings)
+        self.appsettings = self._remove_transient(newsettings)
 
     def _remove_transient(self, newsettings):
         filtered = newsettings.copy()

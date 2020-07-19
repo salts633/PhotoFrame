@@ -4,31 +4,43 @@
     </div>
     <div id="refreshcontain" class="buttonbox flexrow" onclick="event.stopPropagation()">
         <div class="hmsrefreshcontainer">
-            <span class="hmsrefreshbutton">-</span>
+            <span class="hmsrefreshbutton"
+                  onclick="let n = document.getElementById('hmsrefreshnumber'); n.stepDown(); REFRESH.setVal(n.value)">
+                -
+            </span>
         </div>
         <div class="hmsrefreshcontainer">
             <label>
-                <input class="hmsrefreshbutton" id="hmsrefreshnumber" type="number"/>
+                <input class="hmsrefreshbutton" id="hmsrefreshnumber" type="number"
+                       step="5" min="5" max="120" value="5"
+                       onchange="REFRESH.setVal(this.value)"
+                />
             </label>
         </div>
         <div class="hmsrefreshcontainer">
-            <span class="hmsrefreshbutton">+</span>
+            <span class="hmsrefreshbutton"
+                  onclick="let n = document.getElementById('hmsrefreshnumber'); n.stepUp(); REFRESH.setVal(n.value)">
+                +
+            </span>
         </div>
         <div class="hmsrefreshcontainer">
             <label >
-                <input class="hmsrefreshradio" type="radio" name="hms"/>
+                <input class="hmsrefreshradio" type="radio" name="hms" id="hmsseconds"
+                       onchange="if(this.checked) REFRESH.setMode('seconds', 'hmsrefreshnumber')" checked/>
                 <span class="hmsrefreshbutton">Seconds</span>
             </label>
         </div>
         <div class="hmsrefreshcontainer">
             <label>
-                <input class="hmsrefreshradio" type="radio" name="hms"/>
+                <input class="hmsrefreshradio" type="radio" name="hms" id="hmsminutes"
+                       onchange="if(this.checked) REFRESH.setMode('minutes', 'hmsrefreshnumber')"/>
                 <span class="hmsrefreshbutton">Minutes</span>
             </label>
         </div>
         <div class="hmsrefreshcontainer">
             <label>
-                <input class="hmsrefreshradio" type="radio" name="hms"/>
+                <input class="hmsrefreshradio" type="radio" name="hms" id="hmshours"
+                       onchange="if(this.checked) REFRESH.setMode('hours', 'hmsrefreshnumber')"/>
                 <span class="hmsrefreshbutton">Hours</span>
             </label>
         </div>

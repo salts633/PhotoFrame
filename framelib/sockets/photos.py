@@ -112,6 +112,10 @@ class PhotoHandler():
             print('skip backward')
             self.sendindex -=1
             self.send_photo()
+        update_interval = settings.get('photoUpdateInterval', None)
+        if update_interval:
+            self.photo_update_interval = datetime.timedelta(seconds=int(update_interval))
+
 
     def close(self):
         self.photo_timer.stop()
