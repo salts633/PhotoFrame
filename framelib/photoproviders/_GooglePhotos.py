@@ -26,12 +26,13 @@ class PhotoListException(GooglePhotosException):
 class Manager():
     CREDS = None
 
-    def __init__(self, photos_path='photos', album_name='Frame',
-                 photo_update_interval=datetime.timedelta(hours=6)):
-        self.photos_path = photos_path
-        self.album_name = album_name
-        self.photo_update_interval = photo_update_interval
-
+    def __init__(self, DEFAULT_CONFIG=None):
+        self.config = DEFAULT_CONFIG
+        self.photos_path = self.config['photos']['Google']['STORE_PATH']
+        self.album_name = self.config['photos']['Google']['album']
+        self.photo_update_interval = datetime.timedelta(
+            seconds=self.config['settings']['photo_update_interval_seconds']
+        )
         self.flow = None
         self.CREDS = None
         self.service = None

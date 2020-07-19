@@ -7,10 +7,11 @@ from .settings import SettingsHandler
 
 
 class MainSocketHandler(tornado.websocket.WebSocketHandler):
-    def __init__(self, *args, app_handlers=None, **kwargs):
+    def __init__(self, *args, app_handlers=None, DEFAULT_CONFIG=None, **kwargs):
         # call __init__ at start as some handlers (may) expect
         # a socket to be available when they are initialised
         super().__init__(*args, **kwargs)
+        self.config = DEFAULT_CONFIG
         self.app_handlers = []
         if app_handlers is not None:
             for handler, handlerkwargs in app_handlers:

@@ -1,20 +1,19 @@
 import os.path
 import pickle
 import collections
-from .photos import PHOTO_DEFAULT_UPDATE_INTERVAL
 
 
 class SettingsHandler():
-    def __init__(self, *args, **kwargs):
-        self._pickle_name = 'settings.pickle'
+    def __init__(self, *args, DEFAULT_CONFIG=None, **kwargs):
+        self.config = DEFAULT_CONFIG
+        self._pickle_name = self.config['settings']['persist_pickle_path']
         if os.path.exists(self._pickle_name):
             with open(self._pickle_name, 'rb') as f:
                 self._persistent_settings = pickle.load(f)
         else:
             self._persistent_settings = {
-                'photoUpdateInterval': PHOTO_DEFAULT_UPDATE_INTERVAL,
-                'photoIntervalMode': 'seconds'
-
+                'photoUpdateInterval': self.config['settings']['photo_update_interval_seconds'],
+                'photoIntervalMode': self.config['settings']['photo_update_mode']
             }
         self._persistent_keys = self._persistent_settings.keys()
         self._appsettings = self._persistent_settings.copy()
@@ -45,8 +44,8 @@ class SettingsHandler():
     def appsettings(self, newsettings):
         if newsettings != self._appsettings:
             print('new settings found', newsettings)
-            self.write_message(newsettings)
             self._appsettings = newsettings
+            self.write_message(newsettings)
 
         persist = self._persistent_settings.copy()
         self._recursive_dict_update(

@@ -1,22 +1,21 @@
 import datetime
 import tornado.ioloop
-import json
 
-PHOTO_DEFAULT_UPDATE_INTERVAL = 5 # in integer seconds
 
 class PhotoHandler():
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, DEFAULT_CONFIG=None, **kwargs):
+        self.config = DEFAULT_CONFIG
         self.photo_update_interval = datetime.timedelta(
             seconds=kwargs.pop(
-                'photo_update_interval', PHOTO_DEFAULT_UPDATE_INTERVAL
+                'photo_update_interval', self.config['settings']['photo_update_interval_seconds']
             )
         )
         self.socket = kwargs.get('socket')
         self.photo_manager = kwargs.pop('photo_manager')
         self.photo_manager.socket = self.socket
         self.photo_history = []
-        self.max_history = 10
+        self.max_history = self.config['photos']['max_history']
         self._sendindex = -1  # first retrieval will += 1 this
         self.canforward = None
         self.canbackward = None
@@ -115,7 +114,6 @@ class PhotoHandler():
         update_interval = settings.get('photoUpdateInterval', None)
         if update_interval:
             self.photo_update_interval = datetime.timedelta(seconds=int(update_interval))
-
 
     def close(self):
         self.photo_timer.stop()

@@ -25,11 +25,11 @@ WS.addEventListener("message", function (evt) {
             }
         }
         if ('photoUpdateInterval' in newsettings){
-            let mode = newsettings['photoIntervalMode'];
-            // socket always gives value in seconds so set update_interval directly
-            REFRESH.update_interval = newsettings['photoUpdateInterval']
-            document.getElementById('hms'+mode).checked = true
-            REFRESH.setMode(mode, 'hmsrefreshnumber');
+            REFRESH.updateGui(
+                newsettings['photoUpdateInterval'],
+                newsettings['photoIntervalMode'],
+                'hmsrefreshnumber'
+            )
         }
     }
 });
@@ -124,6 +124,11 @@ class RefreshManager{
             console.log('error sending update for photoUpdateInterval:', err)
         }
     }
+    updateGui(seconds, mode, number_input_name){
+        this.update_interval = seconds
+        this.setMode(mode, number_input_name)
+        document.getElementById('hms'+mode).checked = true
+    }
     setVal(val) {
         if (this.mode == 'seconds'){
             var newval = val
@@ -162,6 +167,11 @@ class RefreshManager{
         }
     }
 
+    setModeGui(mode, number_input_name){
+        this.setMode(mode, number_input_name)
+        this.send_update()
+    }
+
     setMode(mode, number_input_name){
         var number_input = document.getElementById(number_input_name)
         this.mode = mode
@@ -187,7 +197,6 @@ class RefreshManager{
             this.checkLims()
             number_input.value = this.update_interval/3600.0
         }
-        this.send_update()
     }
 
 }
