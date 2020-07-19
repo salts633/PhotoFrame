@@ -1,16 +1,14 @@
+import datetime
 import os
 import pickle
-import json
-from googleapiclient.discovery import build
+import random
+import urllib.parse as urlparse
+from pathlib import Path
+
+import requests
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
-import google_auth_httplib2  # This gotta be installed for build() to work
-import requests
-import shutil
-import random
-import datetime
-from pathlib import Path
-import urllib.parse as urlparse
+from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/photoslibrary.readonly"]
 

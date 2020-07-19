@@ -1,17 +1,20 @@
+import logging
+import os.path
+from pathlib import Path
+
+import configobj
+from validate import Validator
+
 import tornado.escape
 import tornado.ioloop
 import tornado.locks
 import tornado.web
 import tornado.websocket
-import os.path
+from tornado.options import define, options, parse_command_line
+
 import framelib
 from framelib.photoproviders import GooglePhotos
 from framelib.sockets import MainSocketHandler, PhotoHandler, SettingsHandler
-from pathlib import Path
-from tornado.options import define, options, parse_command_line
-import configobj
-from validate import Validator
-import logging
 
 LOG = logging.getLogger("tornado.application")
 

@@ -1,6 +1,6 @@
-import tornado.websocket
 import json
-import collections.abc
+
+import tornado.websocket
 
 from .photos import PhotoHandler
 from .settings import SettingsHandler

@@ -1,4 +1,5 @@
 import datetime
+
 import tornado.ioloop
 
 
@@ -20,7 +21,6 @@ class PhotoHandler:
         self.canforward = None
         self.canbackward = None
         self.photo_last_update = None
-        # super().__init__(*args, **kwargs)
         self.photo_timer = tornado.ioloop.PeriodicCallback(
             self._update_photo, callback_time=500
         )

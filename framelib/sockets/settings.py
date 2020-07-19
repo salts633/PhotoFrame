@@ -1,6 +1,6 @@
+import collections
 import os.path
 import pickle
-import collections
 
 
 class SettingsHandler:
@@ -15,8 +15,7 @@ class SettingsHandler:
                 "photoUpdateInterval": self.config["settings"][
                     "photo_update_interval_seconds"
                 ],
-                "photoIntervalMode": self.config["settings"]["photo_update_mode"]
-                # TOODO do logging properly coz its got to the point where you need it, see PhotoFrame.py
+                "photoIntervalMode": self.config["settings"]["photo_update_mode"],
             }
         self._persistent_keys = self._persistent_settings.keys()
         self._appsettings = self._persistent_settings.copy()
@@ -61,6 +60,7 @@ class SettingsHandler:
                 pickle.dump(self._persistent_settings, f)
 
     def open(self):
+        self.socket.update_state({"settings": self.appsettings})
         self.write_message(self.appsettings)
 
     def write_message(self, message):
