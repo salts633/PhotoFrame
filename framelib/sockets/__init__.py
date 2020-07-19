@@ -26,7 +26,7 @@ class MainSocketHandler(tornado.websocket.WebSocketHandler):
             handler.open()
 
     def on_message(self, json_message):
-        print('recieved message', json_message)
+        print("recieved message", json_message)
         newstate = json.loads(json_message)
         self.update_state(newstate)
 
@@ -35,8 +35,8 @@ class MainSocketHandler(tornado.websocket.WebSocketHandler):
             handler.callback(newstate)
 
     def write_message(self, mtype, message):
-        json_message = json.dumps({'type': mtype, 'message': message})
-        print('wriitng message', json_message)
+        json_message = json.dumps({"type": mtype, "message": message})
+        print("wriitng message", json_message)
         super().write_message(json_message)
 
     def on_close(self):

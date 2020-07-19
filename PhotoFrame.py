@@ -13,21 +13,28 @@ import configobj
 from validate import Validator
 import logging
 
-LOG = logging.getLogger('tornado.application')
+LOG = logging.getLogger("tornado.application")
 
-LOG.critical('Sttarting Up')
+LOG.critical("Sttarting Up")
 
 config = configobj.ConfigObj(
-    'photoframe_defaults.conf',
-    configspec=str(Path(framelib.__file__).parent / Path('photoframe_defaults_validate.conf'))
+    "photoframe_defaults.conf",
+    configspec=str(
+        Path(framelib.__file__).parent / Path("photoframe_defaults_validate.conf")
+    ),
 )
 val = Validator()
 config.validate(val)
-define("port", default=config['server']['default_port'], help="run on the given port", type=int)
-define("debug", default=config['server']['debug'], help="run in debug mode")
+define(
+    "port",
+    default=config["server"]["default_port"],
+    help="run on the given port",
+    type=int,
+)
+define("debug", default=config["server"]["debug"], help="run in debug mode")
+
 
 class MainHandler(tornado.web.RequestHandler):
-
     def __init__(self, *args, DEFAULT_CONFIG=None, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -35,7 +42,7 @@ class MainHandler(tornado.web.RequestHandler):
         self.render(
             "index.html",
             SERVER_ADDRESS=self.request.host,
-            PHOTOS_PATH=config['photos']['STORE_PATH']
+            PHOTOS_PATH=config["photos"]["STORE_PATH"],
         )
 
 
@@ -44,35 +51,38 @@ def main():
 
     app = tornado.web.Application(
         [
-            (r"/", MainHandler, {'DEFAULT_CONFIG': config}),
-            (r"/auth/.*", MainHandler, {'DEFAULT_CONFIG': config}),
-            (r"/socket", MainSocketHandler,
-             {
-                 'DEFAULT_CONFIG': config,
-                 'app_handlers': [
+            (r"/", MainHandler, {"DEFAULT_CONFIG": config}),
+            (r"/auth/.*", MainHandler, {"DEFAULT_CONFIG": config}),
+            (
+                r"/socket",
+                MainSocketHandler,
+                {
+                    "DEFAULT_CONFIG": config,
+                    "app_handlers": [
                         (
-                            PhotoHandler, {
-                            'DEFAULT_CONFIG': config,
-                            'photo_manager': GooglePhotos(DEFAULT_CONFIG=config)
-                            }
+                            PhotoHandler,
+                            {
+                                "DEFAULT_CONFIG": config,
+                                "photo_manager": GooglePhotos(DEFAULT_CONFIG=config),
+                            },
                         ),
-                        (SettingsHandler, {'DEFAULT_CONFIG': config}),
-                 ]
-             }
+                        (SettingsHandler, {"DEFAULT_CONFIG": config}),
+                    ],
+                },
             ),
-            (r"/" + config['photos']['STORE_PATH'] + '/(.*)',
-             tornado.web.StaticFileHandler,
-             {
-                 'path': config['photos']['STORE_PATH']
-             }
-             )
+            (
+                r"/" + config["photos"]["STORE_PATH"] + "/(.*)",
+                tornado.web.StaticFileHandler,
+                {"path": config["photos"]["STORE_PATH"]},
+            ),
         ],
-        autoreload=True, # TODO dev option
+        autoreload=True,  # TODO dev option
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
     )
     app.listen(options.port)
     tornado.ioloop.IOLoop.current().start()
+
 
 if __name__ == "__main__":
     main()
