@@ -1,5 +1,6 @@
-import datetime
 import os
+import logging
+import datetime
 import pickle
 import random
 import urllib.parse as urlparse
@@ -9,6 +10,8 @@ import requests
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+
+LOG = logging.getLogger("tornado.application.photoproviders.Google")
 
 SCOPES = ["https://www.googleapis.com/auth/photoslibrary.readonly"]
 
@@ -48,54 +51,61 @@ class Manager:
 
     def auth(self, **kwargs):
         if self.service:
+            LOG.debug("Existing Google service, authorization not required.")
             return True
         if not self.flow:
+            LOG.info("Starting new authorisation flow")
             self.flow = InstalledAppFlow.from_client_secrets_file(
                 "client_secret.json",
                 SCOPES,
-                # redirect_uri= 'http://' + self.socket.request.host + '/auth/google'
-                # redirect_uri="urn:ietf:wg:oauth:2.0:oob:auto"
                 redirect_uri="http://localhost:8888/auth/",
             )
         PICKLE_PATH = "token.pickle"
         token = kwargs.get("token", None)
         if token:
-            print("auth2 query token", token)
+            LOG.debug("Google OAuth step 2 using token %s", token)
             query = urlparse.parse_qs(urlparse.urlparse(token).query)
             if "error" in query or "code" not in query:
-                print("auth step 2 failed")
+                LOG.error("Google OAuth step 2 error")
                 return False
             # part 2 of authorisation step
-            print("auth2 token code", query["code"])
+            LOG.debug("Google OAuth auth token code: %s", query["code"])
             self.flow.fetch_token(code=query["code"][0])
             self.CREDS = self.flow.credentials
             if not self.CREDS.valid:
                 return False
             with open(PICKLE_PATH, "wb") as tokenFile:
+                LOG.info("Writing Google credentials to %s ", PICKLE_PATH)
                 pickle.dump(self.CREDS, tokenFile)
             return True
         # part 1 of authorisation process
         if os.path.exists(PICKLE_PATH):
+            LOG.debug("Existing Google credentials file exists %s", PICKLE_PATH)
             with open("token.pickle", "rb") as tokenFile:
+                LOG.info("Reading Google credentials from %s ", PICKLE_PATH)
                 self.CREDS = pickle.load(tokenFile)
         if not self.CREDS or not self.CREDS.valid:
+            LOG.debug("New Google credentials required")
             if self.CREDS and self.CREDS.expired and self.CREDS.refresh_token:
+                LOG.info("refreshing Google credentials")
                 self.CREDS.refresh(Request())
             else:
-                print("flow from secrets file")
+                LOG.info("Fetching Google authorization URL")
                 auth_url = self.flow.authorization_url()[0]
                 self.socket.write_message("auth_redirect", auth_url)
                 return False
         if not self.service:
-            print("building service")
+            LOG.info("Authoriztion complete, building seervice.")
             self.service = build(
                 "photoslibrary", "v1", credentials=self.CREDS, cache_discovery=False
             )
         return True
 
     def get_album(self, album_name):
+        LOG.debug("Feching album: %s", album_name)
         page_token = True
         while page_token:
+            LOG.debug("Fetching albums page")
             if page_token is True:
                 page_token = None
             results = (
@@ -120,6 +130,7 @@ class Manager:
             raise GooglePhotosException(f"Unable to find requested album")
 
     def get_photo(self):
+        LOG.debug("get_photo called")
         if not self.album_id:
             self.get_album(self.album_name)
         if self.photos_last_updated:
@@ -130,10 +141,11 @@ class Manager:
             or self.photos_last_updated is None
             or update_interval > self.photo_update_interval
         ):
-            print("updating photo in album list")
+            LOG.debug("Updating photos in album list")
             self.photos = []
             page_token = True
             while page_token:
+                LOG.debug("Fetching photos page")
                 if page_token is True:
                     page_token = None
                 request = (
@@ -157,9 +169,10 @@ class Manager:
         self.last_photo = fetch_id
 
         if fetch_id in self.photo_cache:
+            LOG.debug("getting photo from cache")
             photo = self.photo_cache[fetch_id]
         else:
-            print("fetching single photo metadata")
+            LOG.debug("Getting new photo metadata")
             photo = self.service.mediaItems().get(mediaItemId=fetch_id).execute()
             # TODO the docs say not to use baseUrl raw, check them
             r = requests.get(photo["baseUrl"])
@@ -169,9 +182,8 @@ class Manager:
                     with open(saveto, "wb") as f:
                         for chunk in r:
                             f.write(chunk)
-            # print(photo)
             self.photo_cache[fetch_id] = photo
-
+        LOG.debug("Found photo %s", photo)
         return photo["filename"]
 
 

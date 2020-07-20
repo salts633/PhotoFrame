@@ -1,6 +1,9 @@
+import logging
 import collections
 import os.path
 import pickle
+
+LOG = logging.getLogger("tornado.application.sockets.settings")
 
 
 class SettingsHandler:
@@ -8,9 +11,14 @@ class SettingsHandler:
         self.config = DEFAULT_CONFIG
         self._pickle_name = self.config["settings"]["persist_pickle_path"]
         if os.path.exists(self._pickle_name):
+            LOG.info(
+                "Trying to load persistent settings from pickle: %s", self._pickle_name
+            )
             with open(self._pickle_name, "rb") as f:
                 self._persistent_settings = pickle.load(f)
+            LOG.debug("found settings: %s", self._persistent_settings)
         else:
+            LOG.info("Persistent settings pickle not found, using defaults")
             self._persistent_settings = {
                 "photoUpdateInterval": self.config["settings"][
                     "photo_update_interval_seconds"
@@ -45,7 +53,7 @@ class SettingsHandler:
     @appsettings.setter
     def appsettings(self, newsettings):
         if newsettings != self._appsettings:
-            print("new settings found", newsettings)
+            LOG.debug("SettingsHandler new settings found: %s", newsettings)
             self._appsettings = newsettings
             self.write_message(newsettings)
 
@@ -55,18 +63,23 @@ class SettingsHandler:
             {k: v for k, v in newsettings.items() if k in self._persistent_keys},
         )
         if self._persistent_settings != persist:
+            LOG.debug("SettingsHandler new peristent settings found: %s", persist)
             self._persistent_settings = persist
             with open(self._pickle_name, "wb") as f:
+                LOG.debug("writing persistent settings to %s", self._pickle_name)
                 pickle.dump(self._persistent_settings, f)
 
     def open(self):
-        self.socket.update_state({"settings": self.appsettings})
+        msg = {"settings": self.appsettings}
+        LOG.info("SettingsHandler opened, updating/sending current settings: %s", msg)
+        self.socket.update_state(msg)
         self.write_message(self.appsettings)
 
     def write_message(self, message):
         self.socket.write_message("settings", message)
 
     def callback(self, newstate):
+        LOG.debug("SettingsHandler callback with newstate: %s", newstate)
         settings = newstate.get("settings", {})
         newsettings = self.appsettings.copy()
         self._recursive_dict_update(newsettings, settings)
@@ -79,4 +92,4 @@ class SettingsHandler:
         return filtered
 
     def close(self):
-        pass
+        LOG.debug("SettingsHandler closed")

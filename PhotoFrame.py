@@ -18,7 +18,7 @@ from framelib.sockets import MainSocketHandler, PhotoHandler, SettingsHandler
 
 LOG = logging.getLogger("tornado.application")
 
-LOG.critical("Sttarting Up")
+LOG.info("Starting Up")
 
 config = configobj.ConfigObj(
     "photoframe_defaults.conf",
@@ -28,13 +28,14 @@ config = configobj.ConfigObj(
 )
 val = Validator()
 config.validate(val)
+LOG.debug("Successfully loaded and validated config.")
+
 define(
     "port",
     default=config["server"]["default_port"],
     help="run on the given port",
     type=int,
 )
-define("debug", default=config["server"]["debug"], help="run in debug mode")
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -51,6 +52,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 def main():
     parse_command_line()
+    LOG.debug("tornado command line parsed")
 
     app = tornado.web.Application(
         [
@@ -83,6 +85,7 @@ def main():
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
     )
+    LOG.debug("starting listen...")
     app.listen(options.port)
     tornado.ioloop.IOLoop.current().start()
 
