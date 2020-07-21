@@ -10,15 +10,20 @@ class SettingsHandler:
     def __init__(self, *args, DEFAULT_CONFIG=None, **kwargs):
         self.config = DEFAULT_CONFIG
         self._pickle_name = self.config["settings"]["persist_pickle_path"]
+        self._persistent_settings = None
         if os.path.exists(self._pickle_name):
             LOG.info(
                 "Trying to load persistent settings from pickle: %s", self._pickle_name
             )
-            with open(self._pickle_name, "rb") as f:
-                self._persistent_settings = pickle.load(f)
-            LOG.debug("found settings: %s", self._persistent_settings)
+            try:
+                with open(self._pickle_name, "rb") as f:
+                    self._persistent_settings = pickle.load(f)
+                LOG.debug("found settings: %s", self._persistent_settings)
+            except Exception as exp:
+                LOG.error("Loading pickle failed with error %s", exp)
         else:
             LOG.info("Persistent settings pickle not found, using defaults")
+        if not self._persistent_settings:
             self._persistent_settings = {
                 "photoUpdateInterval": self.config["settings"][
                     "photo_update_interval_seconds"

@@ -77,13 +77,18 @@ class Manager:
             with open(PICKLE_PATH, "wb") as tokenFile:
                 LOG.info("Writing Google credentials to %s ", PICKLE_PATH)
                 pickle.dump(self.CREDS, tokenFile)
+                tokenFile.flush()
+                os.fsync(tokenFile.fileno())
             return True
         # part 1 of authorisation process
         if os.path.exists(PICKLE_PATH):
             LOG.debug("Existing Google credentials file exists %s", PICKLE_PATH)
-            with open("token.pickle", "rb") as tokenFile:
-                LOG.info("Reading Google credentials from %s ", PICKLE_PATH)
-                self.CREDS = pickle.load(tokenFile)
+            try:
+                with open("token.pickle", "rb") as tokenFile:
+                    LOG.info("Reading Google credentials from %s ", PICKLE_PATH)
+                    self.CREDS = pickle.load(tokenFile)
+            except Exception as exp:
+                LOG.error("Loading pickled credentials failed with error %s", exp)
         if not self.CREDS or not self.CREDS.valid:
             LOG.debug("New Google credentials required")
             if self.CREDS and self.CREDS.expired and self.CREDS.refresh_token:
