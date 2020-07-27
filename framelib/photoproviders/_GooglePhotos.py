@@ -11,6 +11,8 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
+from framelib.Exceptions import PhotoAlbumException, PhotoImageException
+
 LOG = logging.getLogger("tornado.application.photoproviders.Google")
 
 SCOPES = ["https://www.googleapis.com/auth/photoslibrary.readonly"]
@@ -20,11 +22,11 @@ class GooglePhotosException(Exception):
     """Base class for exceptions concerning Google Photos"""
 
 
-class AlbumException(GooglePhotosException):
+class AlbumException(PhotoAlbumException, GooglePhotosException):
     """Exception relating to Google Photos Album"""
 
 
-class PhotoListException(GooglePhotosException):
+class PhotoListException(PhotoImageException, GooglePhotosException):
     """Exception fetching Google Photos"""
 
 
@@ -34,7 +36,6 @@ class Manager:
     def __init__(self, DEFAULT_CONFIG=None):
         self.config = DEFAULT_CONFIG
         self.photos_path = self.config["photos"]["Google"]["STORE_PATH"]
-        self.album_name = self.config["photos"]["Google"]["album"]
         self.photo_update_interval = datetime.timedelta(
             seconds=self.config["settings"]["photo_update_interval_seconds"]
         )
@@ -43,6 +44,7 @@ class Manager:
         self.service = None
 
         self.socket = None
+        self.album_name = None
         self.album_id = None
         self.photos = None
         self.last_photo = ""
@@ -106,8 +108,12 @@ class Manager:
             )
         return True
 
-    def get_album(self, album_name):
-        LOG.debug("Feching album: %s", album_name)
+    def set_album(self, name):
+        self.album_id = None
+        self.album_name = name
+
+    def get_album(self):
+        LOG.debug("Feching album: %s", self.album_name)
         page_token = True
         while page_token:
             LOG.debug("Fetching albums page")
@@ -125,19 +131,19 @@ class Manager:
             albums = results.get("albums", [])
             self.album_id = None
             for album in albums:
-                if album["title"] == album_name:
+                if album["title"] == self.album_name:
                     self.album_id = album["id"]
                     break
             if self.album_id:
                 break
             page_token = results.get("nextPageToken", None)
         else:
-            raise GooglePhotosException(f"Unable to find requested album")
+            raise AlbumException(f"Unable to find requested album")
 
     def get_photo(self):
         LOG.debug("get_photo called")
         if not self.album_id:
-            self.get_album(self.album_name)
+            self.get_album()
         if self.photos_last_updated:
             update_interval = datetime.datetime.utcnow() - self.photos_last_updated
 

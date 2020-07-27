@@ -3,6 +3,8 @@ import datetime
 
 import tornado.ioloop
 
+from framelib.Exceptions import PhotoAlbumException
+
 LOG = logging.getLogger("tornado.application.sockets.photos")
 
 
@@ -18,6 +20,7 @@ class PhotoHandler:
         self.socket = kwargs.get("socket")
         self.photo_manager = kwargs.pop("photo_manager")
         self.photo_manager.socket = self.socket
+        self.photo_album = None
         self.photo_history = []
         self.max_history = self.config["photos"]["max_history"]
         self._sendindex = -1  # first retrieval will += 1 this
@@ -61,13 +64,16 @@ class PhotoHandler:
             LOG.debug("updating photo")
             if self.photo_manager.auth():
                 LOG.debug("photo_manager is authorized")
-                photoname = self.photo_manager.get_photo()
-                self.photo_history.append(photoname)
-                if len(self.photo_history) > self.max_history:
-                    self.photo_history = self.photo_history[1:]
-                else:
-                    self.sendindex += 1
-                self.send_photo()
+                try:
+                    photoname = self.photo_manager.get_photo()
+                    self.photo_history.append(photoname)
+                    if len(self.photo_history) > self.max_history:
+                        self.photo_history = self.photo_history[1:]
+                    else:
+                        self.sendindex += 1
+                    self.send_photo()
+                except PhotoAlbumException:
+                    self.socket.update_state("settings", {"photoCurrentAlbum": None})
 
     def send_photo(self):
         LOG.debug("Photo name to send: %s", self.photo_history[self.sendindex])
@@ -122,6 +128,12 @@ class PhotoHandler:
             self.photo_update_interval = datetime.timedelta(
                 seconds=int(update_interval)
             )
+        photo_album = settings.get("photoCurrentAlbum", None)
+        if photo_album:
+            LOG.debug("found new photoCurrentAlbum: %s", photo_album)
+            if photo_album != self.photo_album:
+                self.photo_album = photo_album
+                self.photo_manager.set_album(photo_album)
 
     def close(self):
         self.photo_timer.stop()
