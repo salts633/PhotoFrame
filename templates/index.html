@@ -7,36 +7,31 @@
     <link rel="stylesheet" href={{static_url("settings.css")}} type="text/css"/>
   </head>
   <body>
-     <script>
-       SERVER_ADDRESS="{{SERVER_ADDRESS}}";
-       PHOTOS_PATH="{{PHOTOS_PATH}}";
-       STATICPATH="{{static_url('')}}";
-       WS = new WebSocket("ws://"+SERVER_ADDRESS+"/socket");
-       WS.onopen = function() {
-           if (window.location.pathname.startsWith('/auth')) {
-               WS.send(
-                   JSON.stringify(
-                       {'auth': {'token': window.location.href}}
-                   )
-               )
-           }
-           else {
-               WS.send(
-                   JSON.stringify(
-                       {'settings': {'playPause': 'play'}}
-                   )
-               )
-           }
-       }
-       WS.addEventListener("message", function (evt) {
-           let msg = JSON.parse(evt.data)
-            if (msg['type'] == 'auth_redirect') {
-                window.location.replace(msg['message'])
-            }
-       });
-     </script>
-     <script src="{{ static_url('photoframe.js') }}" type="text/javascript"></script>
+     <script src="{{ static_url('communication.js') }}" type="text/javascript"></script>
      <script src="{{ static_url('settings.js') }}" type="text/javascript"></script>
+     <script src="{{ static_url('photoframe.js') }}" type="text/javascript"></script>
+     <script>
+        SERVER_ADDRESS="{{SERVER_ADDRESS}}";
+        PHOTOS_PATH="{{PHOTOS_PATH}}";
+        STATICPATH="{{static_url('')}}";
+        COMM = new Communicator(SERVER_ADDRESS);
+        REFRESH = new RefreshManager()
+
+        COMM.addOpenListener(
+          function (WS) {
+            if (window.location.pathname.startsWith('/auth')) {
+               WS.send(JSON.stringify({'auth': {'token': window.location.href}}))
+            }
+            else {
+               WS.send(JSON.stringify({'settings': {'playPause': 'play'}}))
+            }
+          }
+       )
+       COMM.addMessageCallback("auth_redirect", function (msg) {window.location.replace(msg)})
+       COMM.addMessageCallback("settings", settingsHandler)
+       COMM.addMessageCallback("photo", photoHandler)
+     </script>
+
     <div id='photodiv' onclick="ToggleSettingsVisibility();">
       <img id='photo' src="" alt="">
     </div>
