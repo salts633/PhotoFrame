@@ -34,7 +34,7 @@ class SettingsHandler:
         self._appsettings = self._persistent_settings.copy()
         # always start paused to avoid auth issues
         self._appsettings["playPause"] = "pause"
-        self._transient_settings = ["skip"]
+        self._transient_settings = ["skip", "refresh_albums"]
         self.socket = kwargs.get("socket")
 
     def _recursive_dict_update(self, d, u):

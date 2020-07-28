@@ -46,6 +46,7 @@ class Manager:
         self.socket = None
         self.album_name = None
         self.album_id = None
+        self.album_list = None
         self.photos = None
         self.last_photo = ""
         self.photos_last_updated = None
@@ -112,8 +113,8 @@ class Manager:
         self.album_id = None
         self.album_name = name
 
-    def get_album(self):
-        LOG.debug("Feching album: %s", self.album_name)
+    def get_album_list(self):
+        self.album_list = []
         page_token = True
         while page_token:
             LOG.debug("Fetching albums page")
@@ -128,22 +129,28 @@ class Manager:
                 )
                 .execute()
             )
-            albums = results.get("albums", [])
-            self.album_id = None
-            for album in albums:
-                if album["title"] == self.album_name:
-                    self.album_id = album["id"]
-                    break
-            if self.album_id:
-                break
+            self.album_list.extend(results.get("albums", []))
             page_token = results.get("nextPageToken", None)
+        self.socket.update_state({"settings": {"photoAlbumList": self.album_list}})
+        return self.album_list
+
+    def get_album_id(self):
+        LOG.debug("Feching album: %s", self.album_name)
+        self.album_id = None
+        if not self.album_list:
+            self.get_album_list()
+        for album in self.album_list:
+            if album["title"] == self.album_name:
+                self.album_id = album["id"]
+                break
         else:
             raise AlbumException(f"Unable to find requested album")
+        return self.album_id
 
     def get_photo(self):
         LOG.debug("get_photo called")
         if not self.album_id:
-            self.get_album()
+            self.get_album_id()
         if self.photos_last_updated:
             update_interval = datetime.datetime.utcnow() - self.photos_last_updated
 

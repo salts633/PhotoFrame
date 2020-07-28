@@ -134,6 +134,8 @@ class PhotoHandler:
             if photo_album != self.photo_album:
                 self.photo_album = photo_album
                 self.photo_manager.set_album(photo_album)
+        if settings.get("refresh_albums", False):
+            self.photo_manager.get_album_list()
 
     def close(self):
         self.photo_timer.stop()
