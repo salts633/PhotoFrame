@@ -27,6 +27,12 @@ function settingsHandler(newsettings) {
             'hmsrefreshnumber'
         )
     }
+    if("photoAlbumList" in newsettings) {
+        set_album_list(
+            newsettings["photoAlbumList"],
+            newsettings["photoCurrentAlbum"]
+        )
+    }
 }
 
 function openMenu(menudiv) {
@@ -183,5 +189,40 @@ class RefreshManager{
             number_input.value = this.update_interval/3600.0
         }
     }
+}
 
+function set_album_list(album_list, current_album){
+    var container = document.getElementById("albumselector");
+    container.innerHTML = ""
+    album_list.forEach(
+        album => {
+            container.appendChild(
+                make_album_button(album, current_album)
+            )
+        }
+    )
+}
+function make_album_button(album, current_album){
+    var outerdiv = document.createElement("div")
+    outerdiv.className = "albumbuttoncontainer"
+    var label = document.createElement("label")
+    var input = document.createElement("input")
+    input.className = "albumbuttoncheck"
+    input.setAttribute("type", "checkbox")
+    if(album.title == current_album){
+        input.checked = true
+    }
+    else {
+        input.checked = false
+    }
+    input.setAttribute(
+        "onchange",
+        "if(this.checked) enable_album(" + album.title + ")"
+    )
+    var span = document.createElement("span")
+    span.appendChild(document.createTextNode(album.title))
+    label.appendChild(input)
+    label.appendChild(span)
+    outerdiv.appendChild(label)
+    return outerdiv
 }
