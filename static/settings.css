@@ -4,7 +4,6 @@
     --button-active-color: DarkGray;
 }
 
-
 .settingscontain {
     display: flex;
     flex-direction: row;
@@ -80,13 +79,13 @@
 }
 
 label {
-height: 100%;
-width: 100%;
-display: inherit;
-flex-align: center;
+    height: 100%;
+    width: 100%;
+    display: inherit;
+    flex-align: center;
 }
 
-.hmsrefreshcontainer, .albumbuttoncontainer{
+.buttondiv{
     display: inherit;
     margin: 10px;
     flex-basis: 0;
@@ -96,7 +95,7 @@ flex-align: center;
     align-items: center;
 }
 
-.hmsrefreshcontainer{
+.hmsbuttondiv{
     height: 90%;
 }
 
@@ -104,7 +103,7 @@ flex-align: center;
     flex-wrap: wrap;
 }
 
-.hmsrefreshbutton, .albumbutton{
+.buttonspan{
     background-color: var(--button-background--color);
     height: 100%;
     align-items: center;
@@ -112,21 +111,21 @@ flex-align: center;
     justify-content: center;
 }
 
-.hmsrefreshcontainer label, .albumbuttoncontainer label {
-align-items: center;
+.buttondiv label{
+    align-items: center;
 }
-.hmsrefreshcontainer span, .albumbuttoncontainer span {
-width: 100%;
+.buttondiv span{
+    width: 100%;
 }
 
-.hmsrefreshradio, .albumbuttoncheck{
+.buttoninput{
     display: none
 }
 
-.hmsrefreshcontainer>label input:checked ~ .hmsrefreshbutton, .albumbuttoncontainer>label input:checked ~ .albumbutton {
+.buttondiv>label input:checked ~ .buttonspan{
     background-color: var(--button-background-color);
 }
-.hmsrefreshbutton:active, .albumbutton:active{
+.buttonspan:active{
     background-color: var(--button-active-color);
 }
 

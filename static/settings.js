@@ -204,10 +204,10 @@ function set_album_list(album_list, current_album){
 }
 function make_album_button(album, current_album){
     var outerdiv = document.createElement("div")
-    outerdiv.className = "albumbuttoncontainer"
+    outerdiv.className = "buttondiv"
     var label = document.createElement("label")
     var input = document.createElement("input")
-    input.className = "albumbuttoncheck"
+    input.className = "buttoninput"
     input.setAttribute("type", "checkbox")
     if(album.title == current_album){
         input.checked = true
@@ -220,7 +220,7 @@ function make_album_button(album, current_album){
         "if(this.checked) enable_album(" + album.title + ")"
     )
     var span = document.createElement("span")
-    span.className = "albumbutton"
+    span.className = "buttonspan"
     span.appendChild(document.createTextNode(album.title))
     label.appendChild(input)
     label.appendChild(span)
