@@ -217,7 +217,12 @@ function make_album_button(album, current_album){
     }
     input.setAttribute(
         "onchange",
-        "if(this.checked) enable_album('" + album.title + "')"
+        "if(this.checked) enable_album('"
+         +
+            album.title
+            .replace("'", "\\'")
+            .replace('"', '\\"')
+         + "')"
     )
     var span = document.createElement("span")
     span.className = "buttonspan"
