@@ -220,6 +220,7 @@ function make_album_button(album, current_album){
         "if(this.checked) enable_album(" + album.title + ")"
     )
     var span = document.createElement("span")
+    span.className = "albumbutton"
     span.appendChild(document.createTextNode(album.title))
     label.appendChild(input)
     label.appendChild(span)
