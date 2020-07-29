@@ -204,7 +204,7 @@ function set_album_list(album_list, current_album){
 }
 function make_album_button(album, current_album){
     var outerdiv = document.createElement("div")
-    outerdiv.className = "buttondiv"
+    outerdiv.className = "albuttondiv buttondiv"
     var label = document.createElement("label")
     var input = document.createElement("input")
     input.className = "buttoninput"
@@ -217,7 +217,7 @@ function make_album_button(album, current_album){
     }
     input.setAttribute(
         "onchange",
-        "if(this.checked) enable_album(" + album.title + ")"
+        "if(this.checked) enable_album('" + album.title + "')"
     )
     var span = document.createElement("span")
     span.className = "buttonspan"
@@ -226,4 +226,11 @@ function make_album_button(album, current_album){
     label.appendChild(span)
     outerdiv.appendChild(label)
     return outerdiv
+}
+
+function enable_album(album){
+    console.log('ena', album)
+    COMM.sendMessage(
+        "settings", {"photoCurrentAlbum": album}
+    )
 }
