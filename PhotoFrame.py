@@ -1,6 +1,7 @@
 import logging
 import os.path
 from pathlib import Path
+from importlib import import_module
 
 import configobj
 from validate import Validator
@@ -29,6 +30,11 @@ config = configobj.ConfigObj(
 val = Validator()
 config.validate(val)
 LOG.debug("Successfully loaded and validated config.")
+
+cacher_name = config["file cache"]["use"]
+cacher_settings = config["file cache"][cacher_name]
+Cacher = getattr(import_module("diskcacher"), cacher_name)
+
 
 define(
     "port",
@@ -68,7 +74,13 @@ def main():
                             PhotoHandler,
                             {
                                 "DEFAULT_CONFIG": config,
-                                "photo_manager": GooglePhotos(DEFAULT_CONFIG=config),
+                                "photo_manager": GooglePhotos(
+                                    DEFAULT_CONFIG=config,
+                                    FILE_CACHER=Cacher(
+                                        config["photos"]["Google"]["STORE_PATH"],
+                                        **cacher_settings
+                                    ),
+                                ),
                             },
                         ),
                         (SettingsHandler, {"DEFAULT_CONFIG": config}),

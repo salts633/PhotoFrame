@@ -1,0 +1,3 @@
+[submodule "diskcacher"]
+	path = diskcacher
+	url = git@github.com:salts633/DiskCacher.git

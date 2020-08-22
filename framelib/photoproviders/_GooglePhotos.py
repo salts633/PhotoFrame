@@ -4,7 +4,6 @@ import datetime
 import pickle
 import random
 import urllib.parse as urlparse
-from pathlib import Path
 
 import requests
 from google.auth.transport.requests import Request
@@ -33,7 +32,7 @@ class PhotoListException(PhotoImageException, GooglePhotosException):
 class Manager:
     CREDS = None
 
-    def __init__(self, DEFAULT_CONFIG=None):
+    def __init__(self, DEFAULT_CONFIG=None, FILE_CACHER=None):
         self.config = DEFAULT_CONFIG
         self.photos_path = self.config["photos"]["Google"]["STORE_PATH"]
         self.photo_update_interval = datetime.timedelta(
@@ -51,6 +50,10 @@ class Manager:
         self.last_photo = ""
         self.photos_last_updated = None
         self.photo_cache = {}
+        if FILE_CACHER is None:
+            raise ValueError("No File Cache provided")
+        else:
+            self.file_cache = FILE_CACHER
 
     def auth(self, **kwargs):
         if self.service:
@@ -189,18 +192,25 @@ class Manager:
         if fetch_id in self.photo_cache:
             LOG.debug("getting photo from cache")
             photo = self.photo_cache[fetch_id]
+            if photo["filename"] in self.file_cache:
+                return photo["filename"]
         else:
             LOG.debug("Getting new photo metadata")
             photo = self.service.mediaItems().get(mediaItemId=fetch_id).execute()
             # TODO the docs say not to use baseUrl raw, check them
             r = requests.get(photo["baseUrl"])
             if r.status_code == 200:
-                saveto = self.photos_path / Path(photo["filename"])
-                if not os.path.exists(saveto):
-                    with open(saveto, "wb") as f:
+                filename = photo["filename"]
+                try:
+                    # check if file already cached
+                    self.file_cache[filename]
+                except KeyError:
+                    with self.file_cache.append_mode() as am:
                         for chunk in r:
-                            f.write(chunk)
+                            LOG.debug("writing chunk for %s", filename)
+                            am[filename] = chunk
             self.photo_cache[fetch_id] = photo
+
         LOG.debug("Found photo %s", photo)
         return photo["filename"]
 
