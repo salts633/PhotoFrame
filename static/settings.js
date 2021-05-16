@@ -201,6 +201,7 @@ function set_album_list(album_list, current_album){
             )
         }
     )
+    container.appendChild(refresh_albums_button());
 }
 function make_album_button(album, current_album){
     var outerdiv = document.createElement("div")
@@ -232,7 +233,18 @@ function make_album_button(album, current_album){
     outerdiv.appendChild(label)
     return outerdiv
 }
-
+function refresh_albums_button(){
+    var outerdiv = document.createElement("div")
+    outerdiv.className = "albuttondiv buttondiv"
+    var span = document.createElement("span")
+    span.className = "buttonspan"
+    span.appendChild(document.createTextNode("Refresh Album List"))
+    outerdiv.appendChild(span)
+    outerdiv.onclick = () => {
+        COMM.sendMessage("settings", {"refresh_album": true});
+    }
+    return outerdiv
+}
 function enable_album(album){
     console.log('ena', album)
     COMM.sendMessage(
