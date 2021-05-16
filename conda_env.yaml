@@ -1,4 +1,4 @@
-name: PhotoFrameDev
+name: PhotoFrame
 channels:
   - conda-forge
   - defaults
