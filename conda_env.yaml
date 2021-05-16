@@ -1,0 +1,10 @@
+name: PhotoFrameDev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - configobj
+  - google-api-python-client
+  - google-auth-oauthlib
+  - tornado
